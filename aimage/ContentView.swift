@@ -10,13 +10,23 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+      VStack {
+        HStack {
+          Text("Aimage")
+          Button {
+            
+          } label: {
+            
+          }
+
+        }
+      }.onAppear(perform: download_clip)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+
     }
 }

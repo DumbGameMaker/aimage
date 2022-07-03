@@ -8,6 +8,7 @@
 import SwiftUI
 
 @main
+
 struct aimageApp: App {
     var body: some Scene {
         WindowGroup {
