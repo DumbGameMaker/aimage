@@ -34,7 +34,7 @@ class BackportManager final {
   bytecodeBackportFunctions() const;
 
   bool backport(
-      std::istream& oss,
+      std::shared_ptr<caffe2::serialize::IStreamAdapter> istream_adapter,
       caffe2::serialize::PyTorchStreamWriter& final_writer,
       int64_t from_version,
       int64_t to_version) const;

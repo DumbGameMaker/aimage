@@ -1,6 +1,6 @@
 #pragma once
 
-#include "caffe2/quantization/server/dnnlowp.h"
+#include "dnnlowp.h"
 
 #include <cmath>
 #include <vector>

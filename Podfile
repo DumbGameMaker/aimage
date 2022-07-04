@@ -6,5 +6,5 @@ target 'aimage' do
   use_frameworks!
 
   # Pods for aimage
-  pod 'LibTorch-Lite'
+  pod 'LibTorch-Lite', '=1.11.0'
 end

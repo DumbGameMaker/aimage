@@ -1,6 +1,6 @@
 #pragma once
 
-#include <c10/macros/Export.h>
+#include <torch/csrc/Export.h>
 
 #include <torch/csrc/jit/codegen/cuda/fusion.h>
 #include <torch/csrc/jit/codegen/cuda/ir_base_nodes.h>
@@ -19,9 +19,6 @@ namespace cuda {
 class WelfordResult;
 class ViewTransform;
 
-class IrCloner;
-class IrBuilderPasskey;
-
 //! A Bool value
 //!
 //! This value can be a symbolic value (defined after the kernel
@@ -29,18 +26,17 @@ class IrBuilderPasskey;
 //!
 class TORCH_CUDA_CU_API Bool : public Val {
  public:
-  Bool(IrBuilderPasskey passkey);
+  Bool() : Val(ValType::Scalar, DataType::Bool), maybe_value_{c10::nullopt} {}
 
-  explicit Bool(IrBuilderPasskey passkey, bool value);
-
-  explicit Bool(IrBuilderPasskey passkey, c10::optional<bool> value);
+  explicit Bool(bool value)
+      : Val(ValType::Scalar, DataType::Bool), maybe_value_{value} {}
 
   Bool(const Bool* src, IrCloner* ir_cloner);
 
   bool isSymbolic() const {
     return !(maybe_value_.has_value());
   }
-  bool isConst() const final {
+  bool isConst() const {
     return maybe_value_.has_value();
   }
   c10::optional<bool> value() const {
@@ -53,25 +49,25 @@ class TORCH_CUDA_CU_API Bool : public Val {
   const c10::optional<bool> maybe_value_;
 };
 
-//! A Float64 value. This value can be a symbolic value (defined after the
-//! kernel is compiled) or a constant value (inlined into the kernel
-//! definition).
+//! A Float64 value. For now we don't have any other type besides
+//! Float64. This value can be a symbolic value (defined after the kernel
+//! is compiled) or a constant value (inlined into the kernel definition).
 class TORCH_CUDA_CU_API Double : public Val {
  public:
   using ScalarType = double;
 
-  Double(IrBuilderPasskey passkey);
+  Double()
+      : Val(ValType::Scalar, DataType::Double), maybe_value_{c10::nullopt} {}
 
-  explicit Double(IrBuilderPasskey passkey, ScalarType value);
-
-  explicit Double(IrBuilderPasskey passkey, c10::optional<ScalarType> value);
+  explicit Double(ScalarType value)
+      : Val(ValType::Scalar, DataType::Double), maybe_value_{value} {}
 
   Double(const Double* src, IrCloner* ir_cloner);
 
   bool isSymbolic() const {
     return !(maybe_value_.has_value());
   }
-  bool isConst() const final {
+  bool isConst() const {
     return maybe_value_.has_value();
   }
   c10::optional<ScalarType> value() const {
@@ -90,51 +86,17 @@ class TORCH_CUDA_CU_API Int : public Val {
  public:
   using ScalarType = int64_t;
 
-  Int(IrBuilderPasskey passkey);
+  Int() : Val(ValType::Scalar, DataType::Int), maybe_value_{c10::nullopt} {}
 
-  explicit Int(IrBuilderPasskey passkey, ScalarType value);
-
-  explicit Int(IrBuilderPasskey passkey, c10::optional<ScalarType> value);
+  explicit Int(ScalarType value)
+      : Val(ValType::Scalar, DataType::Int), maybe_value_{value} {}
 
   Int(const Int* src, IrCloner* ir_cloner);
 
   bool isSymbolic() const {
     return !(maybe_value_.has_value());
   }
-  bool isConst() const final {
-    return maybe_value_.has_value();
-  }
-  c10::optional<ScalarType> value() const {
-    return maybe_value_;
-  }
-
-  bool sameAs(const Statement* other) const override;
-
- private:
-  const c10::optional<ScalarType> maybe_value_;
-};
-
-//! An c10::complex<double> value. This value can be a symbolic value (defined
-//! after the kernel is compiled) or a constant value (inlined into the kernel
-//! definition).
-class TORCH_CUDA_CU_API ComplexDouble : public Val {
- public:
-  using ScalarType = c10::complex<double>;
-
-  ComplexDouble(IrBuilderPasskey passkey);
-
-  explicit ComplexDouble(IrBuilderPasskey passkey, ScalarType value);
-
-  explicit ComplexDouble(
-      IrBuilderPasskey passkey,
-      c10::optional<ScalarType> value);
-
-  ComplexDouble(const ComplexDouble* src, IrCloner* ir_cloner);
-
-  bool isSymbolic() const {
-    return !(maybe_value_.has_value());
-  }
-  bool isConst() const final {
+  bool isConst() const {
     return maybe_value_.has_value();
   }
   c10::optional<ScalarType> value() const {
@@ -190,31 +152,20 @@ class TVDomainGuard;
 class TORCH_CUDA_CU_API TensorView : public Val {
  public:
   TensorView(
-      IrBuilderPasskey passkey,
       TensorDomain* domain,
       DataType dtype,
       MemoryType mtype = MemoryType::Local);
 
-  explicit TensorView(
-      IrBuilderPasskey passkey,
-      const std::shared_ptr<c10::TensorType>& tensor_type);
+  explicit TensorView(const std::shared_ptr<c10::TensorType>& tensor_type);
 
-  explicit TensorView(
-      IrBuilderPasskey passkey,
-      const std::shared_ptr<Value>& jit_value);
+  explicit TensorView(const std::shared_ptr<Value>& jit_value)
+      : TensorView(jit_value->type()->cast<c10::TensorType>()) {}
 
   TensorView(const TensorView* src, IrCloner* ir_cloner);
 
   TensorDomain* domain() const {
     return domain_;
   }
-
-  //! This is for a TensorView with an rFactor domain that is an input to a
-  //! fusion segment. We convert the rfactor domain into a new root domain.
-  //! Any dynamic-sized rfactor iterDomains are given a new symbolic extent.
-  //! Concrete integer extents are kept. Output TensorViews of any subsequent
-  //! expressions that use this TensorView are also updated.
-  void convertRfactorToRootDomain();
 
   void setContiguity(const std::vector<bool>& contig) {
     domain()->setContiguity(contig);
@@ -235,16 +186,6 @@ class TORCH_CUDA_CU_API TensorView : public Val {
   //! deprecate when Fusion IR pass can convert
   //! trivial reductions
   bool hasAnyReduction() const;
-
-  //! Returns true if this tensor is zero dimensional,
-  //!  i.e. a wrapped scalar or an empty placeholder.
-  bool isZeroDim() const {
-    return nDims() == 0;
-  }
-
-  //! Returns true if this tensor does not contain
-  //!  any value.
-  bool isEmptyTensor() const;
 
   c10::optional<unsigned int> getReductionAxis() const;
 
@@ -268,24 +209,6 @@ class TORCH_CUDA_CU_API TensorView : public Val {
   }
 
   size_t nDims() const;
-
-  // sets cpu_scalar_ value, which is special handling for CPU based zero-dim
-  // tensors (i.e. CPU Tensors that only have one value). This is only used if
-  // on an input value, otherwise ignored. This is important as special handling
-  // because these "scalars" should be type promoted as a tensor, but we want to
-  // avoid explicit copying of the data, so we want to pass the data value as a
-  // standard kernel argument value.
-  void setCpuScalar(bool is_cpu_scalar);
-
-  // returns cpu_scalar_ value, which is special handling for CPU based zero-dim
-  // tensors (i.e. CPU Tensors that only have one value). This is only used if
-  // on an input value, otherwise ignored. This is important as special handling
-  // because these "scalars" should be type promoted as a tensor, but we want to
-  // avoid explicit copying of the data, so we want to pass the data value as a
-  // standard kernel argument value.
-  bool isCpuScalar() const {
-    return cpu_scalar_;
-  }
 
   // Returns the position that this tensor is produced at relative to its axes.
   unsigned int getComputeAtPosition() const {
@@ -395,27 +318,29 @@ class TORCH_CUDA_CU_API TensorView : public Val {
   //
   TensorView* rFactor(const std::vector<int>& axes);
 
-  //! Multi-output version of rFactor, semantically similar with
-  //! the reduction version except that the rfactor is done
-  //! for all outputs in a consistent way
-  std::vector<TensorView*> rFactor(
+  //! Welford Version of rFactor, semantically similar with
+  //!  the reduction version except that the rfactor is done
+  //!  in a multi-output scan pattern
+  WelfordResult rFactor(
       const std::vector<int>& axes,
-      const std::vector<TensorView*>& tvs);
+      TensorView* avg,
+      TensorView* var,
+      TensorView* n);
 
   // Create a TensorView before the original tensor. A common use case is to
   // write results into shared memory or registers before moving to global
   // memory. Analogous to TVM Cache_Write
-  TensorView* cacheBefore();
+  TensorView* cache_before();
 
   // Create a TensorView after the original tensor. A common use case is to
   // read tensor into shared memory or registers. Analogous to TVM Cache_Read
-  TensorView* cacheAfter();
+  TensorView* cache_after();
 
   // For a fusion output with other uses, we want to avoid writing to global
   // memory and then reading the output again. We write to global memory
   // separately after an operation. We replace this fusion output with the
   // direct write TensorView.
-  TensorView* cacheFork();
+  TensorView* cache_fork();
 
   MemoryType getMemoryType() const {
     return memory_type_;
@@ -431,38 +356,12 @@ class TORCH_CUDA_CU_API TensorView : public Val {
     return axes_to_swizzle_;
   }
 
-  // Apply double buffering transformation
-  void doubleBuffer();
-
-  bool isDoubleBuffered() const {
-    return is_double_buffered_;
-  }
-
-  //! Fill in mma options in scheduling time.
-  //!  Each mma op in Fusion IR must be configured once before lowering.
-  //!  Mma options are configuration parameters used in lowering to mma
-  //!  instrinsics, mainly the type of mma macro to use and input data layout
-  //!  etc.
-  //!
-  //! TODO: This step will very likely be removed in a follow up PR. All of
-  //!  the options configured here could actually be inferred from fusion IR
-  //!  once we are feature complete.
-  void configureMma(MmaOptions options);
-
-  //! Transforms the innermost iterdomains according to the given mma swizzle,
-  //!  this should be used on the tvs that are either inputs/outputs of an
-  //!  MmaOp, or any tv's that are involved in prolog/epilog fusions and need to
-  //!  have a matching thread swizzle with the mma operand/result.
-  //! More detail on usage see [WarpMmaSwizzler] in scheduler/mma_utils.h .
-  void applyMmaSwizzle(MmaOptions options);
-
   friend TORCH_CUDA_CU_API TransformPropagator;
   friend TORCH_CUDA_CU_API TransformReplay;
   friend TORCH_CUDA_CU_API OptOutMutator;
   friend ComputeAt;
+  friend void adjustMemoryTypes(Fusion* fusion);
   friend class ir_utils::TVDomainGuard;
-  friend TORCH_CUDA_CU_API void groupReductions(
-      const std::vector<TensorView*>&);
 
  protected:
   void setDomain(TensorDomain* td) {
@@ -481,9 +380,9 @@ class TORCH_CUDA_CU_API TensorView : public Val {
     return pos;
   }
 
-  //! A helper function to maintain the consistency of schedules of
-  //! multiple outputs wheen doing rfactor on multi-output reduction ops.
-  TensorView* multiOutputRfactorHelper(
+  //! A helper function to maintain the consistency of welford output
+  //! schedules when doing rfactor on welford ops.
+  TensorView* welfordRfactorHelper(
       TensorView* tv,
       const std::vector<int>& axes);
 
@@ -494,14 +393,6 @@ class TORCH_CUDA_CU_API TensorView : public Val {
   MemoryType memory_type_ = MemoryType::Local;
   SwizzleType swizzle_type_ = SwizzleType::NoSwizzle;
   std::vector<IterDomain*> axes_to_swizzle_;
-  bool is_double_buffered_ = false;
-  // special handling for CPU based zero-dim tensors (i.e. CPU Tensors that only
-  // have one value). This is only used if on an input value, otherwise ignored.
-  // This is important as special handling because these "scalars" should be
-  // type promoted as a tensor, but we want to avoid explicit copying of the
-  // data, so we want to pass the data value as a standard kernel argument
-  // value.
-  bool cpu_scalar_ = false;
 };
 
 //! A simple TensorView builder

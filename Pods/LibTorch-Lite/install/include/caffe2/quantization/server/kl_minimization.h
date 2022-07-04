@@ -1,6 +1,6 @@
 #pragma once
 
-#include "caffe2/quantization/server/quantization_error_minimization.h"
+#include "quantization_error_minimization.h"
 
 namespace dnnlowp {
 

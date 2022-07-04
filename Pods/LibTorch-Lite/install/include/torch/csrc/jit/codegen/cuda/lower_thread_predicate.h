@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <c10/macros/Export.h>
+#include <torch/csrc/Export.h>
 
 #include <torch/csrc/jit/codegen/cuda/ir_all_nodes.h>
 #include <torch/csrc/jit/codegen/cuda/lower_utils.h>
@@ -48,10 +48,6 @@ class TORCH_CUDA_CU_API ThreadPredicateMap {
     ParallelTypeBitmap limited_types;
     // Parallel types where only one thread/block is enough.
     ParallelTypeBitmap redundant_types;
-    bool operator==(const PredicateInfo& other) const {
-      return limited_types == other.limited_types &&
-          redundant_types == other.redundant_types;
-    }
   };
 
   using MapType = std::unordered_map<const TensorView*, PredicateInfo>;
@@ -73,7 +69,7 @@ class TORCH_CUDA_CU_API ThreadPredicateMap {
   ParallelTypeBitmap getPredicatedParallelTypes(const TensorView* tv) const;
 
   //! Returns a Bool predicate for a given TensorView.
-  Bool* getPredicate(const TensorView* tv) const;
+  kir::Bool* getPredicate(const TensorView* tv) const;
 
   //! Returns a ParallelTypeBitmap representing which domain needs
   //! blockBroadcast.
@@ -82,14 +78,10 @@ class TORCH_CUDA_CU_API ThreadPredicateMap {
   //! blockBroadcast unless it is predicated by limited_types_
   ParallelTypeBitmap getParallelBroadcastDomains(const TensorView* tv) const;
 
-  //! Mark tv as updated so that rebuilding the map should recompute
-  //! its predicates and those of its dependents.
-  void markAsUpdated(const TensorView* tv);
-
   void print() const;
 
   //! Generate a Bool value from PredicateInfo.
-  static Bool* getPredicateFromPredicateInfo(
+  static kir::Bool* getPredicateFromPredicateInfo(
       const ThreadPredicateMap::PredicateInfo& pred_info);
 
  private:
@@ -102,19 +94,17 @@ class TORCH_CUDA_CU_API ThreadPredicateMap {
   const PredicateInfo& at(const TensorView* tv) const;
   PredicateInfo& at(const TensorView* tv);
 
-  //! Update a mapping
-  bool update(
+  //! Insert a new mapping
+  void insert(
       const TensorView* tv,
-      const ParallelTypeBitmap& limited_types,
+      const ParallelTypeBitmap& valid_types,
       const ParallelTypeBitmap& redundant_types);
 
-  //! Update a mapping
-  bool update(const TensorView* tv, const PredicateInfo& pred_and_src);
+  //! Insert a new mapping
+  void insert(const TensorView* tv, const PredicateInfo& pred_and_src);
 
  private:
   MapType thread_predicates_;
-  //! Keep track of updated tensors that need predicates to be computed
-  std::unordered_set<const TensorView*> updated_tvs_;
 };
 
 } // namespace cuda

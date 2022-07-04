@@ -2,9 +2,10 @@
 ![image](https://user-images.githubusercontent.com/61807031/174503286-725287d0-19ec-4460-8ce1-c325deb2ac0b.png)
 
 Allows creation of images through a number of different models:
-- VQGAN + CLIP (Dall-E mini)
-- BIGGAN + CLIP (big-sleep)
-- CLIP-guided diffusion (deep-daze)
+- DALL-E Mini
+- GLID3XL
+- LatentDiffusion
+- probably more
 
 ## progress:
 

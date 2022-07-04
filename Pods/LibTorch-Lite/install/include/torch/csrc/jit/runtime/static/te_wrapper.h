@@ -38,8 +38,7 @@ std::shared_ptr<TEWrapper> createRelu();
 std::shared_ptr<TEWrapper> createTanh();
 std::shared_ptr<TEWrapper> createSigmoid();
 std::shared_ptr<TEWrapper> createSignedLog1p();
-std::shared_ptr<TEWrapper> createClamp();
-std::shared_ptr<TEWrapper> createClampNanToNum();
+std::shared_ptr<TEWrapper> createWhere();
 
 } // namespace jit
 } // namespace torch

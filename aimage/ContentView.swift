@@ -14,19 +14,19 @@ struct ContentView: View {
         HStack {
           Text("Aimage")
           Button {
-            
+            // TODO: Settings here
           } label: {
             
           }
 
         }
+
       }.onAppear(perform: download_clip)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
-
+      ContentView()
     }
 }

@@ -12,8 +12,9 @@
 		C61DD9B128713C7E00502733 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61DD9B028713C7E00502733 /* ContentView.swift */; };
 		C61DD9B328713C8000502733 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C61DD9B228713C8000502733 /* Assets.xcassets */; };
 		C61DD9B628713C8000502733 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C61DD9B528713C8000502733 /* Preview Assets.xcassets */; };
-		C6EBE57928713E63006932AB /* TorchModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = C6EBE57828713E63006932AB /* TorchModule.mm */; };
 		C6EBE57B28714400006932AB /* download.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6EBE57A28714400006932AB /* download.swift */; };
+		C6EBE57D287242BE006932AB /* api.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6EBE57C287242BE006932AB /* api.swift */; };
+		C6EBE58628724AFB006932AB /* TorchModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = C6EBE58528724AFB006932AB /* TorchModule.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,10 +26,11 @@
 		C61DD9B028713C7E00502733 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C61DD9B228713C8000502733 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C61DD9B528713C8000502733 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		C6EBE57528713E13006932AB /* torch-bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "torch-bridge.h"; sourceTree = "<group>"; };
-		C6EBE57628713E2F006932AB /* TorchModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TorchModule.h; sourceTree = "<group>"; };
-		C6EBE57828713E63006932AB /* TorchModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TorchModule.mm; sourceTree = "<group>"; };
 		C6EBE57A28714400006932AB /* download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = download.swift; sourceTree = "<group>"; };
+		C6EBE57C287242BE006932AB /* api.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = api.swift; sourceTree = "<group>"; };
+		C6EBE58328724AF4006932AB /* TorchModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TorchModule.h; sourceTree = SOURCE_ROOT; };
+		C6EBE58428724AFA006932AB /* aimage-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "aimage-Bridging-Header.h"; sourceTree = "<group>"; };
+		C6EBE58528724AFB006932AB /* TorchModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TorchModule.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,12 +83,14 @@
 		C61DD9AD28713C7E00502733 /* aimage */ = {
 			isa = PBXGroup;
 			children = (
-				C6EBE57428713E01006932AB /* pytorch */,
+				C6EBE58528724AFB006932AB /* TorchModule.mm */,
+				C6EBE58328724AF4006932AB /* TorchModule.h */,
 				C6EBE57228713DE2006932AB /* models */,
 				C61DD9AE28713C7E00502733 /* aimageApp.swift */,
 				C61DD9B028713C7E00502733 /* ContentView.swift */,
 				C61DD9B228713C8000502733 /* Assets.xcassets */,
 				C61DD9B428713C8000502733 /* Preview Content */,
+				C6EBE58428724AFA006932AB /* aimage-Bridging-Header.h */,
 			);
 			path = aimage;
 			sourceTree = "<group>";
@@ -111,18 +115,9 @@
 			isa = PBXGroup;
 			children = (
 				C6EBE57A28714400006932AB /* download.swift */,
+				C6EBE57C287242BE006932AB /* api.swift */,
 			);
 			path = clip;
-			sourceTree = "<group>";
-		};
-		C6EBE57428713E01006932AB /* pytorch */ = {
-			isa = PBXGroup;
-			children = (
-				C6EBE57528713E13006932AB /* torch-bridge.h */,
-				C6EBE57628713E2F006932AB /* TorchModule.h */,
-				C6EBE57828713E63006932AB /* TorchModule.mm */,
-			);
-			path = pytorch;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -222,9 +217,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C6EBE57928713E63006932AB /* TorchModule.mm in Sources */,
+				C6EBE57D287242BE006932AB /* api.swift in Sources */,
 				C6EBE57B28714400006932AB /* download.swift in Sources */,
 				C61DD9B128713C7E00502733 /* ContentView.swift in Sources */,
+				C6EBE58628724AFB006932AB /* TorchModule.mm in Sources */,
 				C61DD9AF28713C7E00502733 /* aimageApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -376,6 +372,7 @@
 				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "aimage/aimage-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -412,6 +409,7 @@
 				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "aimage/aimage-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

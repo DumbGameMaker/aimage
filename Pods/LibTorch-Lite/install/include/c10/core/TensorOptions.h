@@ -643,9 +643,6 @@ inline DispatchKey computeDispatchKey(
           }
           return DispatchKey::CUDA;
         }
-        case DeviceType::IPU: {
-          return DispatchKey::IPU;
-        }
         case DeviceType::XPU: {
           if (isQIntType(dtype_)) {
             return DispatchKey::QuantizedXPU;
@@ -673,8 +670,8 @@ inline DispatchKey computeDispatchKey(
           return DispatchKey::XLA;
         case DeviceType::Lazy:
           return DispatchKey::Lazy;
-        case DeviceType::MPS:
-          return DispatchKey::MPS;
+        case DeviceType::MLC:
+          return DispatchKey::MLC;
         case DeviceType::Vulkan:
           return DispatchKey::Vulkan;
         case DeviceType::Metal:
@@ -683,9 +680,6 @@ inline DispatchKey computeDispatchKey(
           return DispatchKey::Meta;
         case DeviceType::HPU:
           return DispatchKey::HPU;
-        case DeviceType::PrivateUse1: {
-          return DispatchKey::PrivateUse1;
-        }
         default:
           TORCH_CHECK_NOT_IMPLEMENTED(
               false,
@@ -722,9 +716,6 @@ inline DispatchKey computeDispatchKey(
               device_.type());
       }
     case Layout::SparseCsr:
-    case Layout::SparseCsc:
-    case Layout::SparseBsr:
-    case Layout::SparseBsc:
       switch (device_.type()) {
         case DeviceType::CPU:
           return DispatchKey::SparseCsrCPU;
@@ -732,9 +723,7 @@ inline DispatchKey computeDispatchKey(
           return DispatchKey::SparseCsrCUDA;
         default:
           AT_ERROR(
-              "Unsupported device type for ",
-              layout_,
-              " layout: ",
+              "Unsupported device type for sparse CSR layout: ",
               device_.type());
       }
     default:
@@ -749,14 +738,9 @@ inline Layout dispatchKeyToLayout(DispatchKey dispatch_key) {
     case DispatchKey::SparseHIP:
     case DispatchKey::SparseVE:
     case DispatchKey::SparseXPU:
-      return Layout::Sparse;
     case DispatchKey::SparseCsrCPU:
     case DispatchKey::SparseCsrCUDA:
-      TORCH_CHECK(
-          false,
-          "Cannot map DispatchKey ",
-          dispatch_key,
-          " to a unique layout.");
+      return Layout::Sparse;
     case DispatchKey::MkldnnCPU:
       return Layout::Mkldnn;
     default:
@@ -796,24 +780,19 @@ inline DeviceType dispatchKeyToDeviceType(DispatchKey dispatch_key) {
       return DeviceType::Meta;
 
     // stuff that people are actively developing
-    case DispatchKey::IPU:
-    case DispatchKey::AutogradIPU:
-      return DeviceType::IPU;
     case DispatchKey::XPU:
     case DispatchKey::SparseXPU:
     case DispatchKey::QuantizedXPU:
     case DispatchKey::AutogradXPU:
       return DeviceType::XPU;
-    case DispatchKey::MPS:
-    case DispatchKey::AutogradMPS:
-      return DeviceType::MPS;
+    case DispatchKey::MLC:
+    case DispatchKey::AutogradMLC:
+      return DeviceType::MLC;
     case DispatchKey::HPU:
     case DispatchKey::AutogradHPU:
       return DeviceType::HPU;
     case DispatchKey::ORT:
       return DeviceType::ORT;
-    case DispatchKey::PrivateUse1:
-      return DeviceType::PrivateUse1;
     default:
       TORCH_CHECK(
           false,

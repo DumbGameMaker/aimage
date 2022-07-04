@@ -197,7 +197,7 @@ class ScriptList final {
       idx += len();
     }
 
-    if (idx < 0 || idx > len()) {
+    if (idx < 0 || (size_type)idx > len()) {
       throw std::out_of_range("list index out of range");
     }
 
@@ -217,7 +217,7 @@ class ScriptList final {
       idx += sz;
     }
 
-    if (idx < 0 || idx >= sz) {
+    if (idx < 0 || (size_type)idx >= sz) {
       throw std::out_of_range("list index out of range");
     }
 
