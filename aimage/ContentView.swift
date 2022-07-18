@@ -9,19 +9,24 @@ import SwiftUI
 
 
 struct ContentView: View {
+  @State var downloading: Bool = true
     var body: some View {
+      VStack {
+      }.onAppear(perform: download_clip)
       VStack {
         HStack {
           Text("Aimage")
-          Button {
-            // TODO: Settings here
-          } label: {
-            
-          }
 
         }
-
-      }.onAppear(perform: download_clip)
+        HStack{
+        Image(decorative: "Assets/AppIcon")
+        Button {
+          // TODO: Settings here
+        } label: {
+          Image(systemName: "Settings")
+        }
+        }
+      }
     }
 }
 
