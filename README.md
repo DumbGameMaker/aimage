@@ -20,7 +20,7 @@ Allows creation of images through a number of different models:
 
 ## ETA
 
-soon
+never
 
 ## Licencing
 
