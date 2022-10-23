@@ -13,10 +13,8 @@ Allows creation of images through a number of different models:
 - functionality: 10%
 - deep-daze: 15%; implementing CLIP
 - big-sleep: 15%; see deep-daze
-- Dall-E mini: 10%; i know how i am going to do it
+- Dall-E mini: 10%; i think i know how i am going to do it
 - imagen: 15%; see deep-daze
-- Dall-E mega: 0%
-- Dall-E 2: 0%
 
 ## ETA
 
